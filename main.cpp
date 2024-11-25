@@ -20,13 +20,21 @@ public:
 
         // okno
         GLFWmonitor* monitor = fullscreen ? glfwGetPrimaryMonitor() : NULL;
-        window = glfwCreateWindow(height, width, "GLFW", monitor, NULL);
+        window = glfwCreateWindow(height, width, "GLFW", NULL, NULL);
         if(!window) {
             fprintf(stderr, "Nie udalo sie stworzyc okna z GLFW\n");
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
+        if(fullscreen) {
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+            glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+            height = mode->height;
+            width = mode->width;
+        }
         glfwMakeContextCurrent(window); // od okna
+
+        
 
         // glew
         GLenum err = glewInit();
@@ -41,6 +49,9 @@ public:
         glfwSetMouseButtonCallback(window, processMouseInput); // myszka
         glfwSwapInterval(1); // vsync
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // brak kursora
+        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // bufor
+
+        glfwSetWindowSize(window, height, width);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
@@ -155,6 +166,13 @@ private:
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GLFW_TRUE);
         if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) glClearColor(0.8f, 0.3f, 0.3f, 1.0f);
         if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        if(glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) glfwSetWindowSize(window, 1920, 1080);
+        if(glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) glfwSetWindowSize(window, 800, 600);
+    }
+
+    static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+    {
+        glViewport(0, 0, width, height);
     }
 
     static void processMouseInput(GLFWwindow* window, int button, int action, int mods) {
@@ -203,7 +221,7 @@ private:
 };
 
 int main() {
-    Engine engine(800, 600, false, 165);
+    Engine engine(800, 600, true, 165);
     engine.start();
 
     return 0;

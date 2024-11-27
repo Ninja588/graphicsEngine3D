@@ -4,6 +4,10 @@
 #include <chrono>
 #include <thread>
 #include "headers/camera.h"
+#include "headers/renderableObject.h"
+#include "headers/triangle3D.h"
+#include "headers/textureLoader.h"
+#include "headers/cube.h"
 #include "headers/linker.h"
 
 class Engine {
@@ -34,8 +38,6 @@ public:
         }
         glfwMakeContextCurrent(window); // od okna
 
-        
-
         // glew
         GLenum err = glewInit();
         if(err != GLEW_OK) {
@@ -43,7 +45,7 @@ public:
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
-        
+
         // glfw funckje
         glfwSetKeyCallback(window, processInput); // klawiatura
         glfwSetMouseButtonCallback(window, processMouseInput); // myszka
@@ -71,6 +73,111 @@ public:
     void start() {
         const double frameTime = 1.0 / fpsLimit;
         double lastTime = 0.0;
+
+
+        const std::vector<float> surfaceVertex = {
+            -10.0f,-1.0f,-10.f,
+            -10.0f,-1.0f,10.0f,
+            10.0f,-1.0f,10.0f,
+            10.0f,-1.0f,-10.0f
+        };
+        std::vector colorS = {
+            0.4f,0.104f,0.221f
+        };
+        const std::vector<float> texS = {
+            0.0,0.0,
+            0.0,1.0,
+            1.0,1.0,
+            1.0,0.0
+        };
+
+
+        std::vector<float> linesVertices = { 
+            0.0f, 0.0f, 0.0f, 
+            1.0f, 0.0f, 0.0f 
+        };
+        std::vector<float> linesColors = { 
+            1.0f, 0.0f, 0.0f, 
+            0.0f, 1.0f, 0.0f 
+        };
+        RenderableObject lines(linesVertices, linesColors, {0.0, 0.0}, GL_LINES, glm::vec3(2.0f,0.0f,0.0f));
+
+
+        std::vector<float> pointsVertices = { 
+            0.0f, 0.0f, 0.0f, 
+            1.0f, 1.0f, 1.0f 
+        };
+        std::vector<float> pointsColors = { 
+            1.0f, 0.0f, 0.0f, 
+            0.0f, 1.0f, 0.0f
+        };
+        RenderableObject points(pointsVertices, pointsColors, {0.0, 0.0}, GL_POINTS, glm::vec3(-2.0f,0.0f,0.0f));
+
+
+        std::vector<float> lineStripVertices = { 
+            0.0f, 0.0f, 0.0f, 
+            1.0f, 0.0f, 0.0f, 
+            1.0f, 1.0f, 0.0f 
+        };
+        std::vector<float> lineStripColors = { 
+            1.0f, 0.0f, 0.0f, 
+            0.0f, 1.0f, 0.0f, 
+            0.0f, 0.0f, 1.0f 
+        };
+        RenderableObject lineStrip(lineStripVertices, lineStripColors, {0.0,0.0}, GL_LINE_STRIP, glm::vec3(-1.5f,0.0f,0.0f));
+
+
+        std::vector<float> triangleVertices = {
+            0.0f, 0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f
+        };
+        std::vector<float> triangleColors = {
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 1.0f
+        };
+        RenderableObject triangle(triangleVertices, triangleColors, {0.0, 0.0, 0.5, 1.0, 1.0, 0.0}, GL_TRIANGLES, glm::vec3(-3.0f,0.0f,0.0f));
+
+
+        std::vector<float> triangleStripVertices = {
+            0.0f, 0.5f, 0.0f,
+            -0.5f, -0.5f, 0.5f,
+            0.5f, -0.5f, 0.5f,
+            0.0f, -0.5f, -0.5f
+        };
+        std::vector<float> triangleStripColors = {
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 1.0f,
+            1.0f, 1.0f, 0.0f
+        };
+        RenderableObject triangleStrip(triangleStripVertices, triangleStripColors, {0.0, 0.0, 0.5, 1.0, 1.0, 0.0}, GL_TRIANGLE_STRIP, glm::vec3(0.0f,1.0f,0.0f));
+
+
+        RenderableObject* triangle3D = new Triangle3D(glm::vec3(0.0f,0.0f,0.0f));
+        RenderableObject surface(surfaceVertex, colorS, texS, GL_QUADS);
+
+        GLuint textureID = TextureLoader::loadTexture("wall.jpg"); // tekstura
+
+        Cube cube(glm::vec3(0.0f, 1.0f, -5.0f));
+
+        std::vector<float> colorVertex = {
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 
+            0.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 1.0f, 0.0f, 
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 
+            1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 1.0f, 0.0f
+        };
+        triangle3D->setColor(colorVertex);
+
         // petla
         while(!glfwWindowShouldClose(window)) {
             // fps start
@@ -79,10 +186,8 @@ public:
             glfwPollEvents();
 
             double time = glfwGetTime();
-            float deltaTime = static_cast<float>(time - lastTime); 
+            float deltaTime = static_cast<float>(time - lastTime);
             lastTime = time;
-
-            float angle = (float)time * 50.0f; // szybkosc rotacji
 
             movement(deltaTime); // wsad
             cameraMovement(); // obrot kamery
@@ -90,58 +195,36 @@ public:
             // render
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            glm::mat4 view = camera.GetViewMatrix(); 
-            glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+            glm::mat4 view = camera.GetViewMatrix();
+            glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 100.0f);
 
-            glMatrixMode(GL_PROJECTION); 
-            glLoadIdentity(); 
-            glLoadMatrixf(glm::value_ptr(projection)); 
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glLoadMatrixf(glm::value_ptr(projection));
 
-            glMatrixMode(GL_MODELVIEW); 
-            glLoadIdentity(); 
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
             glLoadMatrixf(glm::value_ptr(view));
 
-            glPushMatrix();
-            glRotatef(angle, 0.0f, 1.0f, 0.0f); // rotacja na y
+            // trojkat
+            triangle3D->updateRotation(deltaTime);
+            triangle3D->draw(view, projection, -1);
 
-            glBegin(GL_TRIANGLES);
-                glColor3f(1.0f,0.0f,0.0f); // czerwony
-                glVertex3f(0.0f, 0.5f, 0.0f); //Gora trojkata (Przod)
-                glColor3f(0.0f,1.0f,0.0f); // zielony
-                glVertex3f(-0.5f,-0.5f, 0.5f); // lewa strona trojkata (Przod)
-                glColor3f(0.0f,0.0f,1.0f); // niebieski
-                glVertex3f(0.5f,-0.5f, 0.5f); // prawa strona trojkata (Przod)
-                glColor3f(1.0f,0.0f,0.0f); // czerwony
-                glVertex3f(0.0f, 0.5f, 0.0f); //Gora trojkata (prawo)
-                glColor3f(0.0f,0.0f,1.0f); // niebieski
-                glVertex3f(0.5f,-0.5f, 0.5f); // lewa strona trojkata (prawo)
-                glColor3f(0.0f,1.0f,0.0f); // zielony
-                glVertex3f(0.5f,-0.5f, -0.5f); // prawa strona trojkata (prawo)
-                glColor3f(1.0f,0.0f,0.0f); // czerwony
-                glVertex3f(0.0f, 0.5f, 0.0f); //Gora trojkata (tyl)
-                glColor3f(0.0f,1.0f,0.0f); // zielony
-                glVertex3f(0.5f,-0.5f, -0.5f); // lewa strona trojkata (tyl)
-                glColor3f(0.0f,0.0f,1.0f); // niebieski
-                glVertex3f(-0.5f,-0.5f, -0.5f); // prawa strona trojkata (tyl)
-                glColor3f(1.0f,0.0f,0.0f); // czerwony
-                glVertex3f(0.0f, 0.5f, 0.0f); //Gora trojkata (lewo)
-                glColor3f(0.0f,0.0f,1.0f); // niebieski
-                glVertex3f(-0.5f,-0.5f,-0.5f); // lewa strona trojkata (lewo)
-                glColor3f(0.0f,1.0f,0.0f); // zielony
-                glVertex3f(-0.5f,-0.5f, 0.5f); // prawa strona trojkata (lewo)
-            glEnd();
-            glPopMatrix();
+            //szescian
+            //cube.updateRotation(deltaTime);
+            cube.draw(view, projection, textureID);
+            
 
             // podloga
-            glBegin(GL_QUADS);
-                glColor3f(0.4f,0.104f,0.221f); // rozowy taki ciemny dziwny
-                glVertex3f(-10.0f,-1.0f,-10.f); //lewy dolny
-                glVertex3f(-10.0f,-1.0f,10.0f); // lewy gorny
-                glVertex3f(10.0f,-1.0f,10.0f); // prawy gorny
-                glVertex3f(10.0f,-1.0f,-10.0f); // prawy dolny
-            glEnd();
+            surface.draw(view, projection, textureID);
 
-
+            //prymitwyy
+            lines.draw(view, projection, -1);
+            lineStrip.draw(view, projection, -1);
+            points.draw(view, projection, -1);
+            triangle.draw(view, projection, -1);
+            triangleStrip.draw(view, projection, -1);
+            
             glfwSwapBuffers(window);
 
             // fps end
@@ -209,6 +292,7 @@ private:
 
     // zmienne
     GLFWwindow* window;
+    GLFWwindow* window2;
     int width;
     int height;
     int fpsLimit;
@@ -221,7 +305,7 @@ private:
 };
 
 int main() {
-    Engine engine(800, 600, true, 165);
+    Engine engine(800, 600, false, 165);
     engine.start();
 
     return 0;

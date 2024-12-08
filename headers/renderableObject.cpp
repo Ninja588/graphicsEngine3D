@@ -19,6 +19,7 @@ void RenderableObject::draw(const glm::mat4& view, const glm::mat4& projection, 
     glm::mat4 model = glm::mat4(1.0f); 
     model = glm::translate(model, position);
     model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, objectScale);
 
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(glm::value_ptr(projection));
@@ -46,4 +47,12 @@ void RenderableObject::setColor(const std::vector<float>& newColors) {
 void RenderableObject::updateRotation(float deltaTime) {
     rotationAngle += 50.0f * deltaTime;
     if(rotationAngle > 360.0f) rotationAngle -= 360.0f;
+}
+
+void RenderableObject::translate(glm::vec3 newPos) {
+    position = newPos;
+}
+
+void RenderableObject::scale(glm::vec3 newScale) {
+    objectScale = newScale;
 }

@@ -209,10 +209,14 @@ public:
             // trojkat
             triangle3D->updateRotation(deltaTime);
             triangle3D->draw(view, projection, -1);
+            //triangle3D->translate(glm::vec3(1.0,2.0,1.0));
+            //triangle3D->scale(glm::vec3(5.0));
 
             //szescian
             //cube.updateRotation(deltaTime);
             cube.draw(view, projection, textureID);
+            //cube.scale(glm::vec3(10));
+            //cube.translate(glm::vec3(5.0,5.0,5.0));
             
 
             // podloga

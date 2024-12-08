@@ -117,6 +117,7 @@ void Cube::draw(const glm::mat4& view, const glm::mat4& projection, GLuint textu
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, objectScale);
 
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(glm::value_ptr(projection));
@@ -131,4 +132,8 @@ void Cube::draw(const glm::mat4& view, const glm::mat4& projection, GLuint textu
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisable(GL_TEXTURE_2D);
+}
+
+void Cube::scale(glm::vec3 newScale) {
+    objectScale = newScale;
 }

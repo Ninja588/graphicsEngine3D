@@ -5,7 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <GL/glew.h>
+#include "shader.h"
+//#include <GL/glew.h>
 
 class RenderableObject {
 public:
@@ -18,6 +19,7 @@ public:
     glm::vec3 objectScale = glm::vec3(1.0f);
 
     RenderableObject(const std::vector<float>& verts, const std::vector<float>& cols, const std::vector<float>& tex, GLenum primitiveType, const glm::vec3& pos = glm::vec3(0.0f, 0.0f, 0.0f));
+    virtual void draw(const glm::mat4& view, const glm::mat4& projection, GLuint textureID, Shader shader);
     virtual void draw(const glm::mat4& view, const glm::mat4& projection, GLuint textureID);
 
     void setColor(const std::vector<float>& newColors);

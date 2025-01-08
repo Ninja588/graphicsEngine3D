@@ -1,4 +1,5 @@
-#include <GL/glew.h>
+//#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <chrono>
@@ -9,6 +10,7 @@
 #include "headers/textureLoader.h"
 #include "headers/cube.h"
 #include "headers/linker.h"
+#include "headers/shader.h"
 
 class Engine {
 public:
@@ -39,12 +41,19 @@ public:
         glfwMakeContextCurrent(window); // od okna
 
         // glew
-        GLenum err = glewInit();
-        if(err != GLEW_OK) {
-            fprintf(stderr, "Nie udalo sie zainicjalizowac GLEW: %s\n", glewGetErrorString(err));
-            glfwTerminate();
+        // GLenum err = glewInit();
+        // if(err != GLEW_OK) {
+        //     fprintf(stderr, "Nie udalo sie zainicjalizowac GLEW: %s\n", glewGetErrorString(err));
+        //     glfwTerminate();
+        //     exit(EXIT_FAILURE);
+        // }
+
+        if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            std::cout << "Failed to initialize GLAD" << std::endl;
             exit(EXIT_FAILURE);
         }
+        
 
         // glfw funckje
         glfwSetKeyCallback(window, processInput); // klawiatura
@@ -82,7 +91,8 @@ public:
             10.0f,-1.0f,-10.0f
         };
         std::vector colorS = {
-            0.4f,0.104f,0.221f
+            //0.4f,0.104f,0.221f
+            1.0f,1.0f,1.0f
         };
         const std::vector<float> texS = {
             0.0,0.0,
@@ -176,7 +186,9 @@ public:
             0.0f, 0.0f, 1.0f,
             0.0f, 1.0f, 0.0f
         };
-        triangle3D->setColor(colorVertex);
+        //triangle3D->setColor(colorVertex);
+
+        Shader shader("texture.vs","texture.fs");
 
         // petla
         while(!glfwWindowShouldClose(window)) {
@@ -208,26 +220,25 @@ public:
 
             // trojkat
             triangle3D->updateRotation(deltaTime);
-            triangle3D->draw(view, projection, -1);
+            triangle3D->draw(view, projection, textureID,shader);
             //triangle3D->translate(glm::vec3(1.0,2.0,1.0));
             //triangle3D->scale(glm::vec3(5.0));
 
             //szescian
             //cube.updateRotation(deltaTime);
-            cube.draw(view, projection, textureID);
+            //cube.draw(view, projection, textureID);
             //cube.scale(glm::vec3(10));
             //cube.translate(glm::vec3(5.0,5.0,5.0));
             
-
             // podloga
-            surface.draw(view, projection, textureID);
+            surface.draw(view, projection, textureID,shader);
 
             //prymitwyy
-            lines.draw(view, projection, -1);
-            lineStrip.draw(view, projection, -1);
-            points.draw(view, projection, -1);
-            triangle.draw(view, projection, -1);
-            triangleStrip.draw(view, projection, -1);
+            // lines.draw(view, projection, textureID,shader);
+            // lineStrip.draw(view, projection, textureID,shader);
+            // points.draw(view, projection, textureID,shader);
+            // triangle.draw(view, projection, textureID,shader);
+            // triangleStrip.draw(view, projection, textureID,shader);
             
             glfwSwapBuffers(window);
 

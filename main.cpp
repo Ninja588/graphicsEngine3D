@@ -11,6 +11,9 @@
 #include "headers/cube.h"
 #include "headers/linker.h"
 #include "headers/shader.h"
+//#include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 class Engine {
 public:
@@ -74,7 +77,7 @@ public:
         //printf("Wersja openGL: %s\n", glGetString(GL_VERSION));
     }
 
-    ~Engine() { 
+        ~Engine() { 
         glfwDestroyWindow(window); 
         glfwTerminate(); 
     }
@@ -163,14 +166,23 @@ public:
             1.0f, 1.0f, 0.0f
         };
         RenderableObject triangleStrip(triangleStripVertices, triangleStripColors, {0.0, 0.0, 0.5, 1.0, 1.0, 0.0}, GL_TRIANGLE_STRIP, glm::vec3(0.0f,1.0f,0.0f));
+        
 
+        std::srand(static_cast<unsigned int>(std::time(0)));
+        float randx = static_cast<float>(std::rand()) / RAND_MAX * 18.0f - 9.0f;
+        float randy = static_cast<float>(std::rand()) / RAND_MAX * 18.0f - 9.0f;
+        triangle3D = new Triangle3D(glm::vec3(randx, 0.0f, randy));
 
-        RenderableObject* triangle3D = new Triangle3D(glm::vec3(0.0f,0.0f,0.0f));
+                                                                
         RenderableObject surface(surfaceVertex, colorS, texS, GL_QUADS);
 
-        GLuint textureID = TextureLoader::loadTexture("wall.jpg"); // tekstura
+        GLuint textureID = TextureLoader::loadTexture("coin.jpg"); // tekstura
+        GLuint textureID2 = TextureLoader::loadTexture("automat.jpg");
+        GLuint textureID3 = TextureLoader::loadTexture("ciemnosc.jpg");
+        
 
-        Cube cube(glm::vec3(0.0f, 1.0f, -5.0f));
+        Cube cube(glm::vec3(0.0f, 0.0f, 0.0f));
+        Cube cube2(glm::vec3(0.0f, 0.0f, 0.0f));
 
         std::vector<float> colorVertex = {
             1.0f, 0.0f, 0.0f,
@@ -196,7 +208,6 @@ public:
             auto start = std::chrono::high_resolution_clock::now();
 
             glfwPollEvents();
-
             double time = glfwGetTime();
             float deltaTime = static_cast<float>(time - lastTime);
             lastTime = time;
@@ -220,18 +231,20 @@ public:
 
             // trojkat
             triangle3D->updateRotation(deltaTime);
-            triangle3D->draw(view, projection, textureID,shader);
+            triangle3D->draw(view, projection, textureID);
             //triangle3D->translate(glm::vec3(1.0,2.0,1.0));
             //triangle3D->scale(glm::vec3(5.0));
 
             //szescian
             //cube.updateRotation(deltaTime);
-            //cube.draw(view, projection, textureID);
-            //cube.scale(glm::vec3(10));
+            cube.draw(view, projection, textureID3);
+            cube.scale(glm::vec3(10));
+            cube2.draw(view, projection, textureID2);
+            cube2.scale(glm::vec3(0.5f, 1.0f, 0.35f));
             //cube.translate(glm::vec3(5.0,5.0,5.0));
             
             // podloga
-            surface.draw(view, projection, textureID,shader);
+            surface.draw(view, projection, textureID2,shader);
 
             //prymitwyy
             // lines.draw(view, projection, textureID,shader);
@@ -248,6 +261,20 @@ public:
             if(elapsed.count() < frameTime) { 
                 std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - elapsed.count())); 
             }
+
+            if(camera.position.x < randx+1.0f &&camera.position.x >randx-1.0f &&camera.position.z <randy+1.0f &&camera.position.z > randy-1.0f) {
+        if(triangle3D) {
+            delete triangle3D;
+            triangle3D = nullptr;
+        }
+
+        // Generate new random position for the triangle
+        randx = static_cast<float>(std::rand()) / RAND_MAX * 18.0f - 9.0f;
+        randy = static_cast<float>(std::rand()) / RAND_MAX * 18.0f - 9.0f;
+
+        // Create a new triangle at the new random position
+        triangle3D = new Triangle3D(glm::vec3(randx, 0.0f, randy));
+    }
         }
     }
 
@@ -257,17 +284,19 @@ private:
     }
 
     static void processInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
-        // Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window)); 
+         Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window)); 
         // if(action == GLFW_PRESS || action == GLFW_REPEAT) { 
         //     engine->camera.ProcessKeyboard(key, 0.1f);
         // }
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GLFW_TRUE);
         if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) glClearColor(0.8f, 0.3f, 0.3f, 1.0f);
         if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) ;
         if(glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) glfwSetWindowSize(window, 1920, 1080);
         if(glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) glfwSetWindowSize(window, 800, 600);
+        
     }
-
+    
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     {
         glViewport(0, 0, width, height);
@@ -284,6 +313,7 @@ private:
         if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.ProcessKeyboard(GLFW_KEY_S, deltaTime); 
         if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.ProcessKeyboard(GLFW_KEY_A, deltaTime); 
         if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.ProcessKeyboard(GLFW_KEY_D, deltaTime); 
+        if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) camera.ProcessKeyboard(GLFW_KEY_Q, deltaTime); 
     }
 
     void cameraMovement() {
@@ -317,10 +347,14 @@ private:
     float lastX = width / 2.0f; 
     float lastY = height / 2.0f;
     Camera camera;
+    RenderableObject* triangle3D = nullptr;
+    float randx;
+    float randy;
+
 };
 
 int main() {
-    Engine engine(800, 600, false, 165);
+    Engine engine(800, 600, true, 165);
     engine.start();
 
     return 0;
